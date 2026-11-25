@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#101812">
-<title>INFINITE — First Person Survival v0.3</title>
+<title>INFINITE — First Person Survival v0.4</title>
 <style>
 :root{--glass:rgba(10,17,16,.68);--line:rgba(225,242,228,.16);--muted:#a9b8ad;--lime:#c6f28b;--cyan:#8bd9d0}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101812;color:#f4f7f1;font-family:Inter,ui-sans-serif,system-ui,Arial,sans-serif;overscroll-behavior:none}canvas{display:block}
@@ -30,17 +30,22 @@ button{font:inherit;cursor:pointer;border:0} .primary{width:100%;padding:15px 18
 #nub{position:absolute;left:36px;top:36px;width:42px;height:42px;border:1px solid #ffffff75;border-radius:50%;background:#d8f4b7aa;box-shadow:0 3px 15px #0006;pointer-events:none}
 #lookArea{position:absolute;right:0;top:0;width:55%;height:72%;pointer-events:auto;touch-action:none}
 #mobileActions{position:absolute;right:18px;bottom:22px;display:flex;align-items:flex-end;gap:9px;pointer-events:auto}
-#mobileActions button{width:49px;height:49px;border-radius:50%;background:#102019c9;color:#fff;border:1px solid #ffffff55;font-size:11px;font-weight:800;backdrop-filter:blur(8px);touch-action:none}
-#mobileActions button.big{width:58px;height:58px;background:#c6f28b;color:#172115;border:0}
+#mobileActions{gap:6px}#mobileActions button{width:40px;height:40px;border-radius:50%;background:#102019c9;color:#fff;border:1px solid #ffffff55;font-size:11px;font-weight:800;backdrop-filter:blur(8px);touch-action:none}
+#mobileActions button.big{width:50px;height:50px;background:#c6f28b;color:#172115;border:0}
 @media(max-width:700px){
  #hud{padding:10px}.brand{top:12px;left:12px;font-size:10px}.brand small{font-size:7px}.stats{top:10px;right:10px;width:138px;padding:8px 9px}.stat{margin:4px 0 6px}.statline{font-size:7px}#inventory{left:10px;bottom:10px;padding:8px 10px;font-size:9px}#inventory .items{gap:8px}#hint{bottom:145px;font-size:9px;max-width:80vw;overflow:hidden;text-overflow:ellipsis}#mobile{display:block}#pauseBtn{top:10px;right:158px;padding:7px 9px;font-size:8px}.panel{padding:27px 23px}
 }
+
+#bagBtn,#settingsBtn{position:absolute;top:19px;pointer-events:auto;background:var(--glass);border:1px solid var(--line);border-radius:9px;color:#fff;padding:9px 12px;font-size:9px;letter-spacing:.1em}#bagBtn{right:350px}#settingsBtn{right:280px}#pauseBtn{right:207px}
+.overlayPanel{display:none;position:fixed;inset:0;z-index:25;background:rgba(3,9,7,.72);backdrop-filter:blur(10px);padding:16px;place-items:center}.overlayPanel.open{display:grid}.window{width:min(760px,100%);max-height:min(88vh,850px);overflow:auto;border:1px solid #ffffff25;border-radius:18px;background:linear-gradient(145deg,#17231cfa,#0b120ff7);padding:20px;box-shadow:0 30px 100px #0009}.windowHead,.craftHead{display:flex;align-items:center;justify-content:space-between;gap:12px}.windowHead small,.craftHead small{font-size:8px;letter-spacing:.2em;color:var(--lime)}.windowHead h2{margin:5px 0 16px;font-size:23px;letter-spacing:.1em}.windowHead h3{margin:5px 0}.closePanel{width:34px;height:34px;border:1px solid var(--line);border-radius:9px;background:#ffffff0d;color:white}.inventoryGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.invCell{border:1px solid var(--line);border-radius:10px;padding:10px;background:#ffffff08;min-height:66px}.invCell b{display:block;font-size:12px}.invCell span{font-size:10px;color:var(--muted)}.craftHead{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}.smallPrimary{width:auto;padding:10px 13px;font-size:9px}.recipeList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:12px}.recipe{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;border:1px solid var(--line);border-radius:10px;background:#ffffff08;color:#edf4ed;padding:10px}.recipe.selected{border-color:var(--lime);background:#c6f28b18}.recipe strong{font-size:11px}.recipe small{display:block;color:var(--muted);font-size:9px;margin-top:4px}.recipe em{font-style:normal;color:var(--lime);font-size:9px;white-space:nowrap}.craftStatus{margin:12px 0;padding:10px;border-radius:9px;background:#ffffff09;color:#c5d2c7;font-size:10px;line-height:1.6}.craftActions{display:flex;gap:8px}.craftActions button{flex:1}.primary:disabled{opacity:.35;cursor:not-allowed}.secondary{padding:12px;border:1px solid var(--line);border-radius:9px;background:#ffffff0c;color:white}.settingsWindow{max-width:430px}.settingsWindow label{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:17px 0;color:#d8e3da;font-size:12px}.settingsWindow select{background:#1c2a21;color:white;border:1px solid var(--line);border-radius:8px;padding:8px}.settingsWindow input[type=range]{width:48%}.settingsNote{font-size:10px;color:var(--muted);line-height:1.6}.craftWorldPrompt{display:none;position:fixed;left:50%;top:17%;transform:translateX(-50%);z-index:12;padding:10px 15px;border:1px solid #d5efae66;border-radius:10px;background:#101b16dd;color:#e8f6d8;font-size:10px;letter-spacing:.08em;pointer-events:none}.craftWorldPrompt.show{display:block}
+@media(max-width:700px){#bagBtn{display:none}#settingsBtn{right:228px;top:10px;padding:7px 9px}#pauseBtn{right:158px;top:10px}.inventoryGrid{grid-template-columns:repeat(3,minmax(0,1fr))}.recipeList{grid-template-columns:1fr}.window{padding:15px;max-height:90vh}.windowHead h2{font-size:19px}#inventory{max-width:48vw}#inventory .items{flex-wrap:wrap}.craftActions{flex-direction:column}.settingsWindow label{font-size:10px}}
+
 </style>
 <!-- Recursos: textura de solo Forest Ground 01, Poly Haven CC0. Otimização: Three.js InstancedMesh e descarte explícito de chunks. -->\n</head>
 <body>
 <div id="loading">GENERATING THE WORLD</div>
 <div id="start"><div class="panel">
- <div class="eyebrow">FIRST PERSON SURVIVAL · BUILD 0.3</div>
+ <div class="eyebrow">FIRST PERSON SURVIVAL · BUILD 0.4</div>
  <h1 class="logo">INFINITE</h1><div class="tag">SURVIVAL BEYOND LIMITS</div>
  <p class="desc">Explore um vale vivo, atravesse rios e lagos e descubra uma paisagem que cresce ao seu redor.</p>
  <button class="primary" id="play">INICIAR EXPLORAÇÃO</button>
@@ -49,7 +54,7 @@ button{font:inherit;cursor:pointer;border:0} .primary{width:100%;padding:15px 18
 <div id="pause"><div class="panel"><div class="eyebrow">JORNADA INTERROMPIDA</div><h2 style="font-size:27px;letter-spacing:.12em;margin:12px 0">PAUSADO</h2><p class="desc">O mundo continua esperando por você.</p><button class="primary" id="resume">CONTINUAR</button></div></div>
 <div id="hud">
  <div class="brand">INFINITE<small>GREENLANDS · VALLEY 01</small></div>
- <button id="pauseBtn">Ⅱ PAUSAR</button>
+ <button id="bagBtn">INVENTÁRIO</button><button id="settingsBtn">⚙</button><button id="pauseBtn">Ⅱ PAUSAR</button>
  <div class="stats">
   <div class="stat"><div class="statline"><span>VIDA</span><span id="hpv">100</span></div><div class="track"><div class="fill" id="hp"></div></div></div>
   <div class="stat"><div class="statline"><span>FOME</span><span id="hungerv">100</span></div><div class="track"><div class="fill" id="hunger"></div></div></div>
@@ -57,17 +62,21 @@ button{font:inherit;cursor:pointer;border:0} .primary{width:100%;padding:15px 18
   <div class="stat"><div class="statline"><span>ENERGIA</span><span id="staminav">100</span></div><div class="track"><div class="fill" id="stamina"></div></div></div>
  </div>
  <div id="crosshair"></div><div id="toast"></div>
- <div id="inventory"><strong>RECURSOS</strong><div class="items"><span>▰ <b id="wood">0</b></span><span>◆ <b id="stone">0</b></span><span>✳ <b id="fiber">0</b></span></div></div>
- <div id="hint">Explore o vale · E para coletar recursos</div>
+ <div id="inventory"><strong>MOCHILA</strong><div class="items"><span>🪵 <b id="wood">0</b></span><span>🪨 <b id="stone">0</b></span><span>🌿 <b id="fiber">0</b></span><span>🪵 <b id="sticks">0</b></span></div></div>
+ <div id="hint">Explore o vale · E para coletar · I para inventário</div>
 </div>
 <div id="mobile">
  <div id="lookArea"></div>
  <div id="stick"><div id="nub"></div></div>
- <div id="mobileActions"><button id="collectBtn">COLETAR</button><button id="jumpBtn">PULAR</button><button id="sprintBtn" class="big">RUN</button></div>
+ <div id="mobileActions"><button id="collectBtn">COLETAR</button><button id="jumpBtn">PULAR</button><button id="sprintBtn" class="big">RUN</button><button id="bagMobileBtn">BAG</button><button id="actionBtn">USAR</button></div>
 </div>
+<div id="inventoryPanel" class="overlayPanel"><div class="window"><div class="windowHead"><div><small>INFINITE / EQUIPAMENTO</small><h2>INVENTÁRIO</h2></div><button class="closePanel" data-close="inventoryPanel">✕</button></div><div class="inventoryGrid" id="inventoryGrid"></div><div class="craftHead"><div><small>OFICINA DE CAMPO</small><h3>Receitas conhecidas</h3></div><button id="scanCraft" class="primary smallPrimary">MODO DE CRAFT</button></div><div id="recipeList" class="recipeList"></div><div id="craftStatus" class="craftStatus">Escolha uma receita para preparar os materiais no terreno.</div><div class="craftActions"><button id="assembleBtn" class="primary" disabled>MONTAR OBJETO</button><button id="cancelCraft" class="secondary">CANCELAR</button></div></div></div>
+<div id="settingsPanel" class="overlayPanel"><div class="window settingsWindow"><div class="windowHead"><div><small>INFINITE / SISTEMA</small><h2>CONFIGURAÇÕES</h2></div><button class="closePanel" data-close="settingsPanel">✕</button></div><label>Qualidade gráfica<select id="qualitySelect"><option value="low">Desempenho</option><option value="medium" selected>Equilibrado</option><option value="high">Qualidade</option></select></label><label>Sensibilidade da câmera <input id="sensitivity" type="range" min="3" max="14" value="8"></label><label><input id="shadowsToggle" type="checkbox"> Sombras dinâmicas (mais pesado)</label><p class="settingsNote">Dica: use Desempenho no Chromebook ou celular se houver quedas de FPS.</p><p class="settingsNote">Modelos 3D: Kenney Nature Kit (CC0), carregados via CDN comunitária. Textura de solo: Poly Haven (CC0). Se a conexão falhar, o jogo usa modelos alternativos locais.</p><button id="saveSettings" class="primary">APLICAR</button></div></div>
+<div id="craftWorldPrompt" class="craftWorldPrompt"><span id="craftWorldText">ANALISANDO TERRENO...</span></div>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js';
 const $=id=>document.getElementById(id);
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x9dbdb8);
@@ -88,6 +97,11 @@ sun.position.set(-45,65,25);sun.castShadow=innerWidth>700;sun.shadow.mapSize.set
 sun.shadow.camera.left=-42;sun.shadow.camera.right=42;sun.shadow.camera.top=42;sun.shadow.camera.bottom=-42;scene.add(sun);
 const mat=(color,roughness=1)=>new THREE.MeshStandardMaterial({color,roughness});
 const trunkMat=mat(0x62452e),leafMat=mat(0x315b3b),pineMat=mat(0x244d3a),rockMat=mat(0x777d79),bushMat=mat(0x426d3c);
+const assetModels={};const gltfLoader=new GLTFLoader();const assetBase='https://cdn.jsdelivr.net/gh/syuhei176/ai-game-assets@v1/models/environment/';
+function loadNatureAsset(name,file){gltfLoader.load(assetBase+file,g=>{assetModels[name]=g.scene;applyLoadedAsset(name);},undefined,()=>console.warn('Asset '+file+' indisponível; usando modelo alternativo.'));}
+function fitAsset(source,height){const clone=source.clone(true);const box=new THREE.Box3().setFromObject(clone);const size=box.getSize(new THREE.Vector3());const scale=height/Math.max(.01,size.y);clone.scale.setScalar(scale);const b2=new THREE.Box3().setFromObject(clone);clone.position.y-=b2.min.y;clone.traverse(o=>{if(o.isMesh){o.castShadow=innerWidth>700;o.receiveShadow=true;}});return clone;}
+function applyLoadedAsset(name){for(const r of resources){if(name==='oak'&&r.userData.kind==='wood'&&r.userData.variant===0){r.clear();r.add(fitAsset(assetModels.oak,4.2));}if(name==='pine'&&r.userData.kind==='wood'&&r.userData.variant===1){r.clear();r.add(fitAsset(assetModels.pine,5.4));}if(name==='rock'&&r.userData.kind==='ore'){const old=r.children[0];if(old){old.geometry.dispose();r.remove(old);}r.add(fitAsset(assetModels.rock,2.2));}}}
+loadNatureAsset('oak','tree_oak.glb');loadNatureAsset('pine','tree_pine.glb');loadNatureAsset('rock','rock_large.glb');
 // Scanned CC0 forest-floor texture from Poly Haven (1K); if it fails, vertex-colour terrain remains as fallback.
 const groundTexture=new THREE.TextureLoader().load('https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forrest_ground_01/forrest_ground_01_diff_1k.jpg',t=>{t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(5,5);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());for(const v of loaded.values())if(v.groundMat){v.groundMat.map=t;v.groundMat.needsUpdate=true;}},undefined,()=>console.warn('Poly Haven texture unavailable; using procedural terrain colours.'));
 const groundGroup=new THREE.Group();scene.add(groundGroup);
@@ -95,6 +109,10 @@ const resourceGroup=new THREE.Group();scene.add(resourceGroup);
 const decorGroup=new THREE.Group();scene.add(decorGroup);
 // Lake basin: terrain falls below the waterline, so the water has visible banks and depth.
 const lake={x:27,z:-17,r:15.5,waterY:-.72,bedY:-3.8};
+const mountainCenters=[{x:-72,z:52,r:34,h:25},{x:105,z:88,r:42,h:32},{x:-130,z:-95,r:38,h:29}];
+function mountainAt(x,z){let h=0;for(const m of mountainCenters){const d=Math.hypot(x-m.x,z-m.z);const n=1-smooth(m.r*.35,m.r,d);h+=m.h*n*n;}return h;}
+function isMountain(x,z){return mountainAt(x,z)>8;}
+function nearMountain(x,z){return mountainCenters.some(m=>Math.hypot(x-m.x,z-m.z)<m.r+12);}
 const lakeBed=new THREE.Mesh(new THREE.CircleGeometry(lake.r+1,64),mat(0x263d38));
 lakeBed.rotation.x=-Math.PI/2;lakeBed.position.set(lake.x,lake.bedY,lake.z);scene.add(lakeBed);
 const waterMat=new THREE.MeshStandardMaterial({color:0x287b83,roughness:.16,metalness:.12,transparent:true,opacity:.91});
@@ -111,7 +129,7 @@ water.rotation.x=-Math.PI/2;water.position.set(lake.x,lake.waterY,lake.z);water.
 const shoreMat=mat(0x9a936b);
 const shore=new THREE.Mesh(new THREE.TorusGeometry(lake.r+0.12,.42,7,80),shoreMat);
 shore.rotation.x=Math.PI/2;shore.position.set(lake.x,-.47,lake.z);scene.add(shore);
-const chunkSize=40,chunkRadius=1,unloadRadius=2,loaded=new Map(),resources=[],chunkQueue=[];let lastCenter="";
+const chunkSize=40,chunkRadius=2,unloadRadius=3,loaded=new Map(),resources=[],chunkQueue=[];let lastCenter="";
 let worldSeed=Math.floor(Math.random()*999999);
 function hash(x,z){let n=(Math.imul((Math.floor(x*1000)|0)^worldSeed,0x45d9f3b)+Math.imul((Math.floor(z*1000)|0)^0x9e3779b9,0x27d4eb2d))|0;n=Math.imul(n^(n>>>16),0x45d9f3b);n=Math.imul(n^(n>>>16),0x45d9f3b);return ((n^(n>>>16))>>>0)/4294967295}
 function smooth(a,b,x){const t=THREE.MathUtils.clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)}
@@ -122,6 +140,7 @@ function heightAt(x,z){
  // A bowl-shaped basin, with a sloped shoreline and a lower lake bed.
  if(d<lake.r+2){const basin=THREE.MathUtils.lerp(lake.bedY,lake.waterY+.18,smooth(0,lake.r+2,d));h=Math.min(h,basin);}
  h+=Math.max(0,Math.sin(x*.009+z*.006)-.25)*9;
+ h+=mountainAt(x,z);
  return h;
 }
 function makeTree(x,y,z,variant){
@@ -149,8 +168,10 @@ function makeChunk(cx,cz){
  // Blue-noise-like rejection keeps trees apart and avoids artificial rows.
  const points=[];let attempts=0;while(points.length<17&&attempts<100){attempts++;const x=cx*chunkSize+(hash(cx*101+attempts,cz*79-attempts)-.5)*chunkSize*.94;const z=cz*chunkSize+(hash(cx*37-attempts,cz*131+attempts)-.5)*chunkSize*.94;if(inLake(x,z,3)||Math.hypot(x,z)<8)continue;if(points.some(q=>Math.hypot(q.x-x,q.z-z)<5.2))continue;points.push({x,z});}
  for(let i=0;i<points.length;i++){const {x,z}=points[i],y=heightAt(x,z),r=hash(cx*11+i*17,cz*19+i*29);
-  if(r<.48){const obj=makeTree(x,y,z,r>.27?1:0);obj.userData={kind:'wood',available:true};resourceGroup.add(obj);resources.push(obj);chunkResources.push(obj);}
-  else if(r<.68){const obj=new THREE.Mesh(new THREE.DodecahedronGeometry(.62+hash(i+3,cx)*.42,1),rockMat);obj.position.set(x,y+.32,z);obj.scale.set(1.2,.8,1);obj.rotation.set(hash(x,z),hash(z,x),0);obj.castShadow=true;obj.userData={kind:'stone',available:true};resourceGroup.add(obj);resources.push(obj);chunkResources.push(obj);}
+  if(isMountain(x,z)){const obj=new THREE.Mesh(new THREE.DodecahedronGeometry(1.05+hash(i+3,cx)*.7,1),rockMat);obj.position.set(x,y+.5,z);obj.scale.set(1.35,1.15,1.1);obj.rotation.set(hash(x,z),hash(z,x),0);obj.castShadow=true;obj.userData={kind:'ore',available:true,hp:4,maxHp:4};resourceGroup.add(obj);resources.push(obj);chunkResources.push(obj);}
+  else if(r<.48){const variant=r>.27?1:0;const obj=makeTree(x,y,z,variant);obj.userData={kind:'wood',available:true,hp:3,maxHp:3,variant};resourceGroup.add(obj);resources.push(obj);chunkResources.push(obj);}
+  else if(r<.68){if(nearMountain(x,z)){const peb=new THREE.Mesh(new THREE.DodecahedronGeometry(.12+hash(i,cx)*.09,1),rockMat);peb.position.set(x,y+.08,z);peb.scale.set(1.2,.75,1);peb.userData={kind:'pebble',available:true};resourceGroup.add(peb);resources.push(peb);chunkResources.push(peb);}}
+  else if(hash(z+i,x)<.36){const branch=new THREE.Group();for(let b=0;b<3;b++){const twig=new THREE.Mesh(new THREE.CylinderGeometry(.025,.035,.48,5),trunkMat);twig.rotation.z=Math.PI/2;twig.rotation.y=b*.7;twig.position.y=.05;branch.add(twig);}branch.position.set(x,y+.08,z);branch.userData={kind:'branch',available:true};resourceGroup.add(branch);resources.push(branch);chunkResources.push(branch);}
   else{const bush=new THREE.Group();for(let k=0;k<3;k++){const tuft=new THREE.Mesh(new THREE.ConeGeometry(.12,.38,5),bushMat);tuft.position.set((hash(k+i,x)-.5)*.5,.18,(hash(k+i,z)-.5)*.5);bush.add(tuft);}bush.position.set(x,y,z);bush.userData={kind:'fiber',available:true};resourceGroup.add(bush);resources.push(bush);chunkResources.push(bush);}
  }
  // Low-cost grass clusters: one group per chunk, not dozens of separate scene objects.
@@ -163,33 +184,74 @@ function disposeObject(obj){obj.traverse(o=>{if(o.geometry)o.geometry.dispose();
 function unloadChunk(key,data){groundGroup.remove(data.mesh);data.mesh.geometry.dispose();data.groundMat.dispose();for(const r of data.resources){resourceGroup.remove(r);const idx=resources.indexOf(r);if(idx>=0)resources.splice(idx,1);disposeObject(r);}for(const d of data.decor){decorGroup.remove(d);disposeObject(d);}if(data.grassGeo)data.grassGeo.dispose();if(data.grassMat)data.grassMat.dispose();loaded.delete(key);}
 function updateChunks(){
  const cx=Math.floor(player.position.x/chunkSize),cz=Math.floor(player.position.z/chunkSize),center=cx+','+cz;
- if(center!==lastCenter){lastCenter=center;chunkQueue.length=0;for(let x=cx-chunkRadius;x<=cx+chunkRadius;x++)for(let z=cz-chunkRadius;z<=cz+chunkRadius;z++){const key=x+','+z;if(!loaded.has(key))chunkQueue.push({x,z,d:Math.hypot(x-cx,z-cz)});}chunkQueue.sort((a,b)=>a.d-b.d);}
+ if(center!==lastCenter){lastCenter=center;for(let i=chunkQueue.length-1;i>=0;i--)if(Math.abs(chunkQueue[i].x-cx)>chunkRadius||Math.abs(chunkQueue[i].z-cz)>chunkRadius)chunkQueue.splice(i,1);const queued=new Set(chunkQueue.map(c=>c.x+','+c.z));for(let x=cx-chunkRadius;x<=cx+chunkRadius;x++)for(let z=cz-chunkRadius;z<=cz+chunkRadius;z++){const key=x+','+z;if(!loaded.has(key)&&!queued.has(key))chunkQueue.push({x,z,d:Math.hypot(x-cx,z-cz)});}chunkQueue.sort((a,b)=>a.d-b.d);}
  // Build at most one chunk per frame to avoid a large generation spike.
- if(chunkQueue.length){const c=chunkQueue.shift();makeChunk(c.x,c.z);}
+ if(chunkQueue.length){chunkQueue.sort((a,b)=>Math.hypot(a.x-cx,a.z-cz)-Math.hypot(b.x-cx,b.z-cz));for(let n=0;n<2&&chunkQueue.length;n++){const c=chunkQueue.shift();makeChunk(c.x,c.z);}}
  for(const [key,data] of loaded){const [x,z]=key.split(',').map(Number);if(Math.abs(x-cx)>unloadRadius||Math.abs(z-cz)>unloadRadius)unloadChunk(key,data);}
 }
 const player=new THREE.Group();scene.add(player);player.position.set(0,heightAt(0,0),0);
 let yaw=0,pitch=0,locked=false,started=false,paused=false,velocityY=0,onGround=true;
-const keys={};let hp=100,hunger=100,thirst=100,stamina=100,wood=0,stone=0,fiber=0;
+const keys={};let hp=100,hunger=100,thirst=100,stamina=100,wood=0,stone=0,fiber=0,sticks=0,planks=0,rope=0;
+const crafted={};let activeRecipe=null,craftStage='idle',craftProps=[],selectedTool='';
+const recipes=[
+{id:'sticks',name:'Feixe de gravetos',out:'sticks',qty:4,need:{planks:2},desc:'2 tábuas refinadas → 4 gravetos'},
+{id:'planks',name:'Tábuas refinadas',out:'planks',qty:2,need:{wood:3},desc:'3 madeira → 2 tábuas'},
+{id:'rope',name:'Corda de fibra',out:'rope',qty:2,need:{fiber:4},desc:'4 fibras → 2 cordas'},
+{id:'pickaxe',name:'Picareta de mineração',out:'pickaxe',qty:1,need:{sticks:2,stone:3},desc:'2 gravetos + 3 pedras'},
+{id:'saw',name:'Serrote de coleta',out:'saw',qty:1,need:{sticks:2,stone:1,rope:1},desc:'2 gravetos + pedra + corda'},
+{id:'torch',name:'Tocha apagada',out:'torch',qty:2,need:{sticks:1,fiber:2},desc:'1 graveto + 2 fibras'},
+{id:'campfire',name:'Fogueira',out:'campfire',qty:1,need:{sticks:4,stone:4},desc:'4 gravetos + 4 pedras'},
+{id:'chest',name:'Baú de armazenamento',out:'chest',qty:1,need:{planks:5,rope:1},desc:'5 tábuas + 1 corda'},
+{id:'bench',name:'Bancada simples',out:'bench',qty:1,need:{planks:4,sticks:4},desc:'4 tábuas + 4 gravetos'},
+{id:'bedroll',name:'Saco de dormir',out:'bedroll',qty:1,need:{fiber:6,rope:2},desc:'6 fibras + 2 cordas'},
+{id:'floor',name:'Piso de madeira',out:'floor',qty:2,need:{planks:4},desc:'4 tábuas → 2 pisos'},
+{id:'wall',name:'Parede de abrigo',out:'wall',qty:1,need:{planks:5,sticks:2},desc:'5 tábuas + 2 gravetos'},
+{id:'door',name:'Porta de abrigo',out:'door',qty:1,need:{planks:4,rope:1},desc:'4 tábuas + 1 corda'},
+{id:'roof',name:'Cobertura de folhas',out:'roof',qty:1,need:{sticks:3,fiber:5},desc:'3 gravetos + 5 fibras'},
+{id:'fence',name:'Cerca de madeira',out:'fence',qty:3,need:{sticks:6,rope:1},desc:'6 gravetos + corda → 3 cercas'},
+{id:'filter',name:'Filtro de água',out:'filter',qty:1,need:{fiber:4,stone:2,rope:1},desc:'4 fibras + 2 pedras + corda'},
+{id:'collector',name:'Coletor de chuva',out:'collector',qty:1,need:{planks:3,rope:2},desc:'3 tábuas + 2 cordas'},
+{id:'planter',name:'Canteiro',out:'planter',qty:1,need:{planks:3,fiber:2},desc:'3 tábuas + 2 fibras'},
+{id:'lantern',name:'Lanterna de campo',out:'lantern',qty:1,need:{sticks:2,stone:1,fiber:2},desc:'2 gravetos + pedra + fibras'},
+{id:'bridge',name:'Módulo de ponte',out:'bridge',qty:1,need:{planks:4,rope:2},desc:'4 tábuas + 2 cordas'},
+{id:'sign',name:'Placa de sinalização',out:'sign',qty:1,need:{planks:2,sticks:1},desc:'2 tábuas + graveto'},
+{id:'rack',name:'Suporte de recursos',out:'rack',qty:1,need:{sticks:4,rope:2},desc:'4 gravetos + 2 cordas'},
+{id:'pot',name:'Panela de pedra',out:'pot',qty:1,need:{stone:5,rope:1},desc:'5 pedras + corda'},
+{id:'shelter',name:'Abrigo compacto',out:'shelter',qty:1,need:{planks:8,sticks:6,fiber:4},desc:'8 tábuas + 6 gravetos + fibras'}
+];
 const clock=new THREE.Clock();let elapsed=0;
 function toast(msg){$('toast').textContent=msg;$('toast').style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').style.opacity=0,1700)}
 function updateHUD(){
  for(const [id,v] of [['hp',hp],['hunger',hunger],['thirst',thirst],['stamina',stamina]]){$(id).style.width=Math.max(0,v)+'%';$(id+'v').textContent=Math.round(v);}
- $('wood').textContent=wood;$('stone').textContent=stone;$('fiber').textContent=fiber;
+ $('wood').textContent=wood;$('stone').textContent=stone;$('fiber').textContent=fiber;$('sticks').textContent=sticks;if(uiOpen&&$('inventoryPanel').classList.contains('open'))renderInventory();
 }
-function nearestResource(){
- let best=null,dist=3.8;
- for(const r of resources){if(!r.userData.available)continue;const d=r.position.distanceTo(player.position);if(d<dist){dist=d;best=r;}}
- return best;
-}
-function collect(){
- const r=nearestResource();if(!r){toast('Nenhum recurso por perto.');return;}
- r.userData.available=false;r.visible=false;
- if(r.userData.kind==='wood'){wood+=3;toast('+3 madeira');}
- if(r.userData.kind==='stone'){stone+=2;toast('+2 pedras');}
- if(r.userData.kind==='fiber'){fiber+=2;toast('+2 fibras');}
- updateHUD();
-}
+function nearestResource(){let best=null,dist=4.2;for(const r of resources){if(!r.userData.available)continue;const d=Math.hypot(r.position.x-player.position.x,r.position.z-player.position.z);if(d<dist){dist=d;best=r;}}return best;}
+function damagePlayer(amount,msg){hp=Math.max(0,hp-amount);updateHUD();toast(msg+' (-'+amount+' vida)');}
+const harvestAnimations=[];
+function collect(){const r=nearestResource();if(!r){toast('Nenhum recurso ao alcance.');return;}
+ if(r.userData.kind==='branch'){r.userData.available=false;r.visible=false;sticks+=1;toast('+1 graveto');updateHUD();return;}
+ if(r.userData.kind==='pebble'){if(!nearMountain(r.position.x,r.position.z)){toast('Pedras só aparecem na região montanhosa.');return;}stone+=1;r.userData.available=false;r.visible=false;toast('+1 pedra solta');updateHUD();return;}
+ if(r.userData.kind==='wood'){if(!crafted.saw){damagePlayer(7,'A árvore é resistente demais para as mãos');return;}r.userData.hp--;if(r.userData.hp>0){toast('Árvore danificada: '+r.userData.hp+' golpes restantes');return;}r.userData.available=false;r.userData.falling=true;harvestAnimations.push({obj:r,t:0});toast('Árvore derrubada');return;}
+ if(r.userData.kind==='ore'){if(!crafted.pickaxe){damagePlayer(9,'A rocha é resistente demais para as mãos');return;}r.userData.hp--;if(r.userData.hp>0){toast('Rocha danificada: '+r.userData.hp+' golpes restantes');return;}r.userData.available=false;r.visible=false;stone+=5;toast('+5 pedras da montanha');}
+ else if(r.userData.kind==='fiber'){r.userData.available=false;r.visible=false;fiber+=2;toast('+2 fibras');}
+ updateHUD();}
+function updateHarvestAnimations(dt){for(let i=harvestAnimations.length-1;i>=0;i--){const a=harvestAnimations[i];a.t+=dt;a.obj.rotation.z=Math.min(1.25,a.t*2.8);if(a.t>.5){a.obj.visible=false;a.obj.userData.falling=false;wood+=5;harvestAnimations.splice(i,1);updateHUD();toast('+5 madeira');}}}
+function itemCount(k){return ({wood,stone,fiber,sticks,planks,rope}[k]??(crafted[k]||0));}
+function hasRecipe(r){return Object.entries(r.need).every(([k,v])=>itemCount(k)>=v);}
+function spendRecipe(r){for(const [k,v] of Object.entries(r.need)){if(k==='wood')wood-=v;else if(k==='stone')stone-=v;else if(k==='fiber')fiber-=v;else if(k==='sticks')sticks-=v;else if(k==='planks')planks-=v;else if(k==='rope')rope-=v;else crafted[k]=(crafted[k]||0)-v;}if(r.out==='sticks')sticks+=r.qty;else if(r.out==='planks')planks+=r.qty;else if(r.out==='rope')rope+=r.qty;else crafted[r.out]=(crafted[r.out]||0)+r.qty;}
+function renderInventory(){const grid=$('inventoryGrid');if(!grid)return;const rows=[['Madeira',wood],['Pedra',stone],['Fibra',fiber],['Gravetos',sticks],['Tábuas',planks],['Corda',rope],...Object.entries(crafted).filter(([,v])=>v>0).map(([k,v])=>[k,v])];grid.innerHTML=rows.map(([n,v])=>`<div class="invCell"><b>${n}</b><span>Quantidade: ${v}</span></div>`).join('');const list=$('recipeList');if(!list)return;list.innerHTML=recipes.map(r=>`<button class="recipe ${activeRecipe?.id===r.id?'selected':''}" data-recipe="${r.id}"><span><strong>${r.name}</strong><small>${r.desc}</small></span><em>${hasRecipe(r)?'DISPONÍVEL':'FALTAM ITENS'}</em></button>`).join('');list.querySelectorAll('[data-recipe]').forEach(b=>b.onclick=()=>{activeRecipe=recipes.find(r=>r.id===b.dataset.recipe);craftStage='selected';renderInventory();$('craftStatus').textContent='Selecionado: '+activeRecipe.name+'. Entre no modo de craft para procurar um trecho plano perto de você.';$('assembleBtn').disabled=true;});}
+let uiOpen=false;function openInventory(){if(!started||paused)return;uiOpen=true;$('inventoryPanel').classList.add('open');renderInventory();}
+function closePanel(id){$(id).classList.remove('open');uiOpen=$('inventoryPanel').classList.contains('open')||$('settingsPanel').classList.contains('open');}
+function clearCraftProps(){for(const o of craftProps){scene.remove(o);o.traverse(c=>{if(c.geometry)c.geometry.dispose();});}craftProps=[];}
+function scanCraftArea(){if(!activeRecipe){toast('Escolha uma receita primeiro.');return;}clearCraftProps();$('craftWorldPrompt').classList.add('show');$('craftWorldText').textContent='ESCANEANDO TERRENO PRÓXIMO...';let chosen=null;for(let radius=2;radius<7&&!chosen;radius+=.5){for(let a=0;a<Math.PI*2;a+=Math.PI/12){const x=player.position.x+Math.cos(a)*radius,z=player.position.z+Math.sin(a)*radius;const y=heightAt(x,z);if(inLake(x,z,2)||isMountain(x,z)||Math.abs(heightAt(x+1,z)-y)>.55||Math.abs(heightAt(x,z+1)-y)>.55)continue;chosen={x,y,z};break;}}if(!chosen){$('craftWorldText').textContent='NENHUMA ÁREA SEGURA ENCONTRADA';$('craftStatus').textContent='Não achei terreno plano e livre. Caminhe até uma área mais aberta e tente novamente.';setTimeout(()=>$('craftWorldPrompt').classList.remove('show'),1800);return;}
+ const pad=new THREE.Mesh(new THREE.CircleGeometry(2.5,32),new THREE.MeshBasicMaterial({color:0xb8d98c,transparent:true,opacity:.16,depthWrite:false}));pad.rotation.x=-Math.PI/2;pad.position.set(chosen.x,chosen.y+.035,chosen.z);scene.add(pad);craftProps.push(pad);
+ const entries=Object.entries(activeRecipe.need);let index=0;for(const [kind,qty] of entries){for(let n=0;n<qty;n++){const angle=(index/Math.max(1,entries.reduce((a,b)=>a+b[1],0)))*Math.PI*2;const rad=1.05+(index%2)*.5;const obj=makeCraftProp(kind);obj.position.set(chosen.x+Math.cos(angle)*rad,chosen.y+.12,chosen.z+Math.sin(angle)*rad);obj.rotation.y=angle;scene.add(obj);craftProps.push(obj);index++;}}
+ craftStage='scanned';$('craftWorldText').textContent='LOCAL DE CRAFT VALIDADO';$('craftStatus').textContent='Terreno validado. Os materiais foram organizados no chão. Confira a receita e confirme a montagem.';$('assembleBtn').disabled=!hasRecipe(activeRecipe);setTimeout(()=>$('craftWorldPrompt').classList.remove('show'),1500);}
+function makeCraftProp(kind){const g=new THREE.Group();let geo,material;if(kind==='wood'||kind==='planks'){geo=new THREE.BoxGeometry(.55,.12,.18);material=trunkMat;}else if(kind==='sticks'||kind==='rope'){geo=new THREE.CylinderGeometry(.035,.045,.55,6);material=kind==='rope'?bushMat:trunkMat;}else if(kind==='stone'){geo=new THREE.DodecahedronGeometry(.18,1);material=rockMat;}else{geo=new THREE.SphereGeometry(.14,7,6);material=bushMat;}const m=new THREE.Mesh(geo,material);m.castShadow=true;g.add(m);return g;}
+function assembleCraft(){if(!activeRecipe||craftStage!=='scanned'||!hasRecipe(activeRecipe)){toast('Materiais insuficientes ou terreno não validado.');return;}spendRecipe(activeRecipe);clearCraftProps();craftStage='idle';$('craftStatus').textContent=activeRecipe.name+' fabricado com sucesso.';$('assembleBtn').disabled=true;updateHUD();renderInventory();toast('Fabricado: '+activeRecipe.name);}
+$('bagBtn').onclick=openInventory;$('bagMobileBtn').onclick=openInventory;$('settingsBtn').onclick=()=>{uiOpen=true;$('settingsPanel').classList.add('open');};document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closePanel(b.dataset.close));$('scanCraft').onclick=scanCraftArea;$('assembleBtn').onclick=assembleCraft;$('cancelCraft').onclick=()=>{clearCraftProps();craftStage='idle';$('craftStatus').textContent='Craft cancelado.';$('assembleBtn').disabled=true;};$('actionBtn').onclick=collect;
+$('saveSettings').onclick=()=>{const q=$('qualitySelect').value;renderer.setPixelRatio(Math.min(devicePixelRatio,q==='low'?.8:q==='medium'?1.15:1.5));renderer.shadowMap.enabled=$('shadowsToggle').checked&&innerWidth>700;camera.userData.lookSensitivity=Number($('sensitivity').value)/1000;camera.userData.mouseSensitivity=Number($('sensitivity').value)/4000;closePanel('settingsPanel');toast('Configurações aplicadas.');};camera.userData.lookSensitivity=.008;
+
 function jump(){if(onGround&&!paused){velocityY=7.5;onGround=false;}}
 let touchX=0,touchY=0,touchStart=null,sprintTouch=false;
 function move(dt){
@@ -228,7 +290,7 @@ function tickSurvival(dt){
 function animate(){
  requestAnimationFrame(animate);
  const dt=Math.min(clock.getDelta(),.05);
- if(started&&!paused){elapsed+=dt;move(dt);updateCamera();tickSurvival(dt);dayNight(elapsed);updateChunks();if(waterMat.userData.shader)waterMat.userData.shader.uniforms.uTime.value=elapsed;}
+ if(started&&!paused&&!uiOpen){elapsed+=dt;move(dt);updateCamera();tickSurvival(dt);dayNight(elapsed);updateChunks();updateHarvestAnimations(dt);if(waterMat.userData.shader)waterMat.userData.shader.uniforms.uTime.value=elapsed;}
  renderer.render(scene,camera);
 }
 function start(){
@@ -241,8 +303,8 @@ $('play').onclick=start;
 $('resume').onclick=()=>{paused=false;$('pause').style.display='none';if(innerWidth>700)renderer.domElement.requestPointerLock?.();};
 $('pauseBtn').onclick=pause;
 document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===renderer.domElement;if(started&&!locked&&innerWidth>700&&!paused){paused=true;$('pause').style.display='grid';}});
-document.addEventListener('mousemove',e=>{if(locked&&!paused){yaw-=e.movementX*.0022;pitch=THREE.MathUtils.clamp(pitch-e.movementY*.0018,-1.15,1.15);}});
-document.addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyE'&&started&&!paused)collect();if(e.code==='Space'){e.preventDefault();jump();}if(e.code==='Escape'&&started&&!paused)pause();});
+document.addEventListener('mousemove',e=>{if(locked&&!paused){const sens=camera.userData.lookSensitivity||.0022;yaw-=e.movementX*sens;pitch=THREE.MathUtils.clamp(pitch-e.movementY*sens*.82,-1.15,1.15);}});
+document.addEventListener('keydown',e=>{if($('inventoryPanel').classList.contains('open')||$('settingsPanel').classList.contains('open')){if(e.code==='Escape'||e.code==='KeyI'){closePanel('inventoryPanel');closePanel('settingsPanel');}return;}keys[e.code]=true;if(e.code==='KeyI')openInventory();if(e.code==='KeyE'&&started&&!paused)collect();if(e.code==='Space'){e.preventDefault();jump();}if(e.code==='Escape'&&started&&!paused)pause();});
 document.addEventListener('keyup',e=>keys[e.code]=false);
 const stick=$('stick'),nub=$('nub');
 stick.addEventListener('pointerdown',e=>{e.preventDefault();stick.setPointerCapture(e.pointerId);touchStart={x:e.clientX,y:e.clientY};});
@@ -260,9 +322,9 @@ stick.addEventListener('pointerup',resetStick);stick.addEventListener('pointerca
 const lookArea=$('lookArea');let lookPointer=null,lastLookX=0,lastLookY=0;
 lookArea.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;lookPointer=e.pointerId;lastLookX=e.clientX;lastLookY=e.clientY;lookArea.setPointerCapture(e.pointerId);});
 lookArea.addEventListener('pointermove',e=>{
- if(lookPointer!==e.pointerId||paused)return;
+ if(lookPointer!==e.pointerId||paused||uiOpen)return;
  const dx=e.clientX-lastLookX,dy=e.clientY-lastLookY;lastLookX=e.clientX;lastLookY=e.clientY;
- yaw-=dx*.006;pitch=THREE.MathUtils.clamp(pitch-dy*.005,-1.15,1.15);
+ const sens=camera.userData.lookSensitivity||.008;yaw-=dx*sens;pitch=THREE.MathUtils.clamp(pitch-dy*sens*.82,-1.15,1.15);
 });
 function endLook(e){if(lookPointer===e.pointerId)lookPointer=null;}
 lookArea.addEventListener('pointerup',endLook);lookArea.addEventListener('pointercancel',endLook);
@@ -274,7 +336,8 @@ addEventListener('resize',()=>{
  camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);
  renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth>700?1.6:1.25));
 });
-updateChunks();updateHUD();updateCamera();animate();$('loading').style.display='none';
+for(let x=-1;x<=1;x++)for(let z=-1;z<=1;z++)makeChunk(x,z);updateChunks();updateHUD();updateCamera();animate();$('loading').style.display='none';
 </script>
+<!-- Recursos externos: Poly Haven (texturas CC0; API pública documentada). Créditos exibidos no menu de configurações. -->
 </body>
- </html>
+</html>

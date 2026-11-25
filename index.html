@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#101812">
-<title>INFINITE — First Person Survival</title>
+<title>INFINITE — First Person Survival v0.3</title>
 <style>
 :root{--glass:rgba(10,17,16,.68);--line:rgba(225,242,228,.16);--muted:#a9b8ad;--lime:#c6f28b;--cyan:#8bd9d0}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101812;color:#f4f7f1;font-family:Inter,ui-sans-serif,system-ui,Arial,sans-serif;overscroll-behavior:none}canvas{display:block}
@@ -36,19 +36,19 @@ button{font:inherit;cursor:pointer;border:0} .primary{width:100%;padding:15px 18
  #hud{padding:10px}.brand{top:12px;left:12px;font-size:10px}.brand small{font-size:7px}.stats{top:10px;right:10px;width:138px;padding:8px 9px}.stat{margin:4px 0 6px}.statline{font-size:7px}#inventory{left:10px;bottom:10px;padding:8px 10px;font-size:9px}#inventory .items{gap:8px}#hint{bottom:145px;font-size:9px;max-width:80vw;overflow:hidden;text-overflow:ellipsis}#mobile{display:block}#pauseBtn{top:10px;right:158px;padding:7px 9px;font-size:8px}.panel{padding:27px 23px}
 }
 </style>
-</head>
+<!-- Recursos: textura de solo Forest Ground 01, Poly Haven CC0. Otimização: Three.js InstancedMesh e descarte explícito de chunks. -->\n</head>
 <body>
 <div id="loading">GENERATING THE WORLD</div>
 <div id="start"><div class="panel">
- <div class="eyebrow">A PROCEDURAL SURVIVAL EXPERIENCE</div>
+ <div class="eyebrow">FIRST PERSON SURVIVAL · BUILD 0.3</div>
  <h1 class="logo">INFINITE</h1><div class="tag">SURVIVAL BEYOND LIMITS</div>
- <p class="desc">Um mundo desconhecido se estende além do horizonte. Explore a natureza, encontre recursos e sobreviva. Cada região é construída proceduralmente enquanto você avança.</p>
+ <p class="desc">Explore um vale vivo, atravesse rios e lagos e descubra uma paisagem que cresce ao seu redor.</p>
  <button class="primary" id="play">INICIAR EXPLORAÇÃO</button>
  <div class="controls">WASD — mover &nbsp;·&nbsp; SHIFT — correr<br>ESPAÇO — pular &nbsp;·&nbsp; E — coletar<br>MOUSE — olhar ao redor &nbsp;·&nbsp; ESC — pausar</div>
 </div></div>
 <div id="pause"><div class="panel"><div class="eyebrow">JORNADA INTERROMPIDA</div><h2 style="font-size:27px;letter-spacing:.12em;margin:12px 0">PAUSADO</h2><p class="desc">O mundo continua esperando por você.</p><button class="primary" id="resume">CONTINUAR</button></div></div>
 <div id="hud">
- <div class="brand">INFINITE<small>GREENLANDS · REGION 01</small></div>
+ <div class="brand">INFINITE<small>GREENLANDS · VALLEY 01</small></div>
  <button id="pauseBtn">Ⅱ PAUSAR</button>
  <div class="stats">
   <div class="stat"><div class="statline"><span>VIDA</span><span id="hpv">100</span></div><div class="track"><div class="fill" id="hp"></div></div></div>
@@ -58,7 +58,7 @@ button{font:inherit;cursor:pointer;border:0} .primary{width:100%;padding:15px 18
  </div>
  <div id="crosshair"></div><div id="toast"></div>
  <div id="inventory"><strong>RECURSOS</strong><div class="items"><span>▰ <b id="wood">0</b></span><span>◆ <b id="stone">0</b></span><span>✳ <b id="fiber">0</b></span></div></div>
- <div id="hint">Explore · Pressione E perto de um recurso</div>
+ <div id="hint">Explore o vale · E para coletar recursos</div>
 </div>
 <div id="mobile">
  <div id="lookArea"></div>
@@ -88,30 +88,39 @@ sun.position.set(-45,65,25);sun.castShadow=innerWidth>700;sun.shadow.mapSize.set
 sun.shadow.camera.left=-42;sun.shadow.camera.right=42;sun.shadow.camera.top=42;sun.shadow.camera.bottom=-42;scene.add(sun);
 const mat=(color,roughness=1)=>new THREE.MeshStandardMaterial({color,roughness});
 const trunkMat=mat(0x62452e),leafMat=mat(0x315b3b),pineMat=mat(0x244d3a),rockMat=mat(0x777d79),bushMat=mat(0x426d3c);
+// Scanned CC0 forest-floor texture from Poly Haven (1K); if it fails, vertex-colour terrain remains as fallback.
+const groundTexture=new THREE.TextureLoader().load('https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forrest_ground_01/forrest_ground_01_diff_1k.jpg',t=>{t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(5,5);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());for(const v of loaded.values())if(v.groundMat){v.groundMat.map=t;v.groundMat.needsUpdate=true;}},undefined,()=>console.warn('Poly Haven texture unavailable; using procedural terrain colours.'));
 const groundGroup=new THREE.Group();scene.add(groundGroup);
 const resourceGroup=new THREE.Group();scene.add(resourceGroup);
 const decorGroup=new THREE.Group();scene.add(decorGroup);
-// A visible lake anchors the first region and gives the terrain a landmark.
-const water=new THREE.Mesh(
- new THREE.CircleGeometry(16,64),
- new THREE.MeshStandardMaterial({color:0x4b9da0,roughness:.22,metalness:.08,transparent:true,opacity:.86})
-);
-water.rotation.x=-Math.PI/2;water.position.set(27,-.43,-17);scene.add(water);
-const shore=new THREE.Mesh(
- new THREE.TorusGeometry(16,.28,5,64),
- new THREE.MeshStandardMaterial({color:0xb6b68a,roughness:1})
-);
-shore.rotation.x=Math.PI/2;shore.position.set(27,-.38,-17);scene.add(shore);
-const chunkSize=40,chunkRadius=2,loaded=new Map(),resources=[];
+// Lake basin: terrain falls below the waterline, so the water has visible banks and depth.
+const lake={x:27,z:-17,r:15.5,waterY:-.72,bedY:-3.8};
+const lakeBed=new THREE.Mesh(new THREE.CircleGeometry(lake.r+1,64),mat(0x263d38));
+lakeBed.rotation.x=-Math.PI/2;lakeBed.position.set(lake.x,lake.bedY,lake.z);scene.add(lakeBed);
+const waterMat=new THREE.MeshStandardMaterial({color:0x287b83,roughness:.16,metalness:.12,transparent:true,opacity:.91});
+waterMat.onBeforeCompile=(shader)=>{
+ shader.uniforms.uTime={value:0};
+ shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nuniform float uTime;');
+ shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed.y += sin(position.x*0.72 + uTime*1.25)*0.045 + cos(position.z*0.61 - uTime*0.9)*0.035;');
+ shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform float uTime;');
+ shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\nfloat ripple = 0.035*sin(vViewPosition.x*1.7 + uTime) * cos(vViewPosition.y*1.4-uTime*0.7);\ndiffuseColor.rgb += vec3(0.10,0.18,0.18)*ripple;');
+ waterMat.userData.shader=shader;
+};
+const water=new THREE.Mesh(new THREE.CircleGeometry(lake.r,80),waterMat);
+water.rotation.x=-Math.PI/2;water.position.set(lake.x,lake.waterY,lake.z);water.renderOrder=2;scene.add(water);
+const shoreMat=mat(0x9a936b);
+const shore=new THREE.Mesh(new THREE.TorusGeometry(lake.r+0.12,.42,7,80),shoreMat);
+shore.rotation.x=Math.PI/2;shore.position.set(lake.x,-.47,lake.z);scene.add(shore);
+const chunkSize=40,chunkRadius=1,unloadRadius=2,loaded=new Map(),resources=[],chunkQueue=[];let lastCenter="";
 let worldSeed=Math.floor(Math.random()*999999);
-function hash(x,z){let n=Math.sin(x*127.1+z*311.7+worldSeed)*43758.5453;return n-Math.floor(n)}
+function hash(x,z){let n=(Math.imul((Math.floor(x*1000)|0)^worldSeed,0x45d9f3b)+Math.imul((Math.floor(z*1000)|0)^0x9e3779b9,0x27d4eb2d))|0;n=Math.imul(n^(n>>>16),0x45d9f3b);n=Math.imul(n^(n>>>16),0x45d9f3b);return ((n^(n>>>16))>>>0)/4294967295}
 function smooth(a,b,x){const t=THREE.MathUtils.clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)}
+function inLake(x,z,margin=0){return Math.hypot(x-lake.x,z-lake.z)<lake.r+margin}
 function heightAt(x,z){
  let h=Math.sin(x*.027)*2.5+Math.cos(z*.031)*2.2+Math.sin((x+z)*.018)*2.1+Math.cos(x*.075-z*.04)*.55;
- // A shallow lake basin near the starting region.
- const d=Math.hypot(x-27,z+17);
- if(d<17)h=THREE.MathUtils.lerp(h,-.65,smooth(19,9,d));
- // Distant ridges create a varied skyline.
+ const d=Math.hypot(x-lake.x,z-lake.z);
+ // A bowl-shaped basin, with a sloped shoreline and a lower lake bed.
+ if(d<lake.r+2){const basin=THREE.MathUtils.lerp(lake.bedY,lake.waterY+.18,smooth(0,lake.r+2,d));h=Math.min(h,basin);}
  h+=Math.max(0,Math.sin(x*.009+z*.006)-.25)*9;
  return h;
 }
@@ -129,46 +138,35 @@ function makeTree(x,y,z,variant){
 }
 function makeChunk(cx,cz){
  const key=cx+','+cz;if(loaded.has(key))return;
- const geo=new THREE.PlaneGeometry(chunkSize,chunkSize,28,28);geo.rotateX(-Math.PI/2);
+ const geo=new THREE.PlaneGeometry(chunkSize,chunkSize,20,20);geo.rotateX(-Math.PI/2);
  const p=geo.attributes.position,colors=[];
- const low=new THREE.Color(0x596d43),mid=new THREE.Color(0x789354),high=new THREE.Color(0x777b70);
- for(let i=0;i<p.count;i++){
-  const x=p.getX(i)+cx*chunkSize,z=p.getZ(i)+cz*chunkSize,y=heightAt(x,z);p.setY(i,y);
-  const c=new THREE.Color();
-  if(y>5)c.copy(mid).lerp(high,Math.min(1,(y-5)/9));else c.copy(low).lerp(mid,Math.max(0,(y+2)/7));
-  colors.push(c.r,c.g,c.b);
- }
+ const low=new THREE.Color(0x43583a),mid=new THREE.Color(0x718b50),high=new THREE.Color(0x77796e);
+ for(let i=0;i<p.count;i++){const x=p.getX(i)+cx*chunkSize,z=p.getZ(i)+cz*chunkSize,y=heightAt(x,z);p.setY(i,y);const c=new THREE.Color();if(y>5)c.copy(mid).lerp(high,Math.min(1,(y-5)/10));else c.copy(low).lerp(mid,Math.max(0,(y+2)/7));colors.push(c.r,c.g,c.b);}
  geo.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));geo.computeVertexNormals();
- const groundMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:1});
+ const groundMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,map:groundTexture});
  const mesh=new THREE.Mesh(geo,groundMat);mesh.position.set(cx*chunkSize,0,cz*chunkSize);mesh.receiveShadow=true;groundGroup.add(mesh);
  const chunkResources=[],chunkDecor=[];
- for(let i=0;i<46;i++){
-  const x=cx*chunkSize+(hash(cx*77+i,cz*23+i)-.5)*chunkSize*.92;
-  const z=cz*chunkSize+(hash(cx*31+i,cz*91+i)-.5)*chunkSize*.92;
-  if(Math.hypot(x,z)<9)continue;
-  const y=heightAt(x,z),r=hash(cx*11+i,cz*19+i);
-  if(r<.31){
-   const obj=makeTree(x,y,z,r>.15?1:0);obj.userData={kind:'wood',available:true};resourceGroup.add(obj);resources.push(obj);chunkResources.push(obj);
-  }else if(r<.43){
-   const obj=new THREE.Mesh(new THREE.DodecahedronGeometry(.72+hash(i,cx)*.5,1),rockMat);obj.position.set(x,y+.35,z);obj.scale.set(1.2,.8,1);obj.rotation.set(hash(x,z),hash(z,x),0);obj.castShadow=true;obj.userData={kind:'stone',available:true};resourceGroup.add(obj);resources.push(obj);chunkResources.push(obj);
-  }else{
-   // Bushes, grass tufts and small flowers make the forest floor feel alive.
-   const bush=new THREE.Group();
-   const count=3+Math.floor(hash(i+5,cx+cz)*3);
-   for(let k=0;k<count;k++){
-    const isFlower=hash(k+i,z)*.22;
-    const tuft=new THREE.Mesh(new THREE.ConeGeometry(.11+isFlower,.35+isFlower,5),isFlower>.14?mat(0xc1b96c):bushMat);
-    tuft.position.set((hash(k,x)-.5)*.65,.16,(hash(k,z)-.5)*.65);tuft.rotation.z=(hash(k,z)-.5)*.35;bush.add(tuft);
-   }
-   bush.position.set(x,y,z);decorGroup.add(bush);chunkDecor.push(bush);
-   if(r>.84){bush.userData={kind:'fiber',available:true};resourceGroup.add(bush);resources.push(bush);chunkResources.push(bush);decorGroup.remove(bush);}
-  }
+ // Blue-noise-like rejection keeps trees apart and avoids artificial rows.
+ const points=[];let attempts=0;while(points.length<17&&attempts<100){attempts++;const x=cx*chunkSize+(hash(cx*101+attempts,cz*79-attempts)-.5)*chunkSize*.94;const z=cz*chunkSize+(hash(cx*37-attempts,cz*131+attempts)-.5)*chunkSize*.94;if(inLake(x,z,3)||Math.hypot(x,z)<8)continue;if(points.some(q=>Math.hypot(q.x-x,q.z-z)<5.2))continue;points.push({x,z});}
+ for(let i=0;i<points.length;i++){const {x,z}=points[i],y=heightAt(x,z),r=hash(cx*11+i*17,cz*19+i*29);
+  if(r<.48){const obj=makeTree(x,y,z,r>.27?1:0);obj.userData={kind:'wood',available:true};resourceGroup.add(obj);resources.push(obj);chunkResources.push(obj);}
+  else if(r<.68){const obj=new THREE.Mesh(new THREE.DodecahedronGeometry(.62+hash(i+3,cx)*.42,1),rockMat);obj.position.set(x,y+.32,z);obj.scale.set(1.2,.8,1);obj.rotation.set(hash(x,z),hash(z,x),0);obj.castShadow=true;obj.userData={kind:'stone',available:true};resourceGroup.add(obj);resources.push(obj);chunkResources.push(obj);}
+  else{const bush=new THREE.Group();for(let k=0;k<3;k++){const tuft=new THREE.Mesh(new THREE.ConeGeometry(.12,.38,5),bushMat);tuft.position.set((hash(k+i,x)-.5)*.5,.18,(hash(k+i,z)-.5)*.5);bush.add(tuft);}bush.position.set(x,y,z);bush.userData={kind:'fiber',available:true};resourceGroup.add(bush);resources.push(bush);chunkResources.push(bush);}
  }
- loaded.set(key,{mesh,resources:chunkResources,decor:chunkDecor});
+ // Low-cost grass clusters: one group per chunk, not dozens of separate scene objects.
+ const grassGeo=new THREE.ConeGeometry(.09,.34,4),grassMat=mat(0x78934b);const grassBatch=new THREE.InstancedMesh(grassGeo,grassMat,75);const dummy=new THREE.Object3D();let count=0;
+ for(let i=0;i<75;i++){const x=cx*chunkSize+(hash(i+cx*71,cz*23+i)-.5)*chunkSize*.95,z=cz*chunkSize+(hash(cx*13+i,cz*97-i)-.5)*chunkSize*.95;if(inLake(x,z,2))continue;dummy.position.set(x,heightAt(x,z)+.13,z);dummy.rotation.set(0,hash(x,z)*6.28,0);const sc=.65+hash(z,x)*.8;dummy.scale.set(sc,sc,sc);dummy.updateMatrix();grassBatch.setMatrixAt(count++,dummy.matrix);}
+ grassBatch.count=count;grassBatch.instanceMatrix.needsUpdate=true;decorGroup.add(grassBatch);
+ loaded.set(key,{mesh,groundMat,resources:chunkResources,decor:[grassBatch],grassGeo,grassMat});
 }
+function disposeObject(obj){obj.traverse(o=>{if(o.geometry)o.geometry.dispose();});}
+function unloadChunk(key,data){groundGroup.remove(data.mesh);data.mesh.geometry.dispose();data.groundMat.dispose();for(const r of data.resources){resourceGroup.remove(r);const idx=resources.indexOf(r);if(idx>=0)resources.splice(idx,1);disposeObject(r);}for(const d of data.decor){decorGroup.remove(d);disposeObject(d);}if(data.grassGeo)data.grassGeo.dispose();if(data.grassMat)data.grassMat.dispose();loaded.delete(key);}
 function updateChunks(){
- const cx=Math.floor(player.position.x/chunkSize),cz=Math.floor(player.position.z/chunkSize);
- for(let x=cx-chunkRadius;x<=cx+chunkRadius;x++)for(let z=cz-chunkRadius;z<=cz+chunkRadius;z++)makeChunk(x,z);
+ const cx=Math.floor(player.position.x/chunkSize),cz=Math.floor(player.position.z/chunkSize),center=cx+','+cz;
+ if(center!==lastCenter){lastCenter=center;chunkQueue.length=0;for(let x=cx-chunkRadius;x<=cx+chunkRadius;x++)for(let z=cz-chunkRadius;z<=cz+chunkRadius;z++){const key=x+','+z;if(!loaded.has(key))chunkQueue.push({x,z,d:Math.hypot(x-cx,z-cz)});}chunkQueue.sort((a,b)=>a.d-b.d);}
+ // Build at most one chunk per frame to avoid a large generation spike.
+ if(chunkQueue.length){const c=chunkQueue.shift();makeChunk(c.x,c.z);}
+ for(const [key,data] of loaded){const [x,z]=key.split(',').map(Number);if(Math.abs(x-cx)>unloadRadius||Math.abs(z-cz)>unloadRadius)unloadChunk(key,data);}
 }
 const player=new THREE.Group();scene.add(player);player.position.set(0,heightAt(0,0),0);
 let yaw=0,pitch=0,locked=false,started=false,paused=false,velocityY=0,onGround=true;
@@ -203,12 +201,10 @@ function move(dt){
  const dir=forward.multiplyScalar(forwardInput).add(right.multiplyScalar(sideInput));
  const moving=dir.lengthSq()>.015;if(moving)dir.normalize();
  const sprint=(keys.ShiftLeft||keys.ShiftRight||sprintTouch)&&stamina>1;
- const speed=sprint?8.3:5.1;
+ const swimming=inLake(player.position.x,player.position.z,0);const speed=(sprint?8.3:5.1)*(swimming?.48:1);
  if(moving)player.position.addScaledVector(dir,speed*dt);
  if(sprint&&moving)stamina=Math.max(0,stamina-19*dt);else stamina=Math.min(100,stamina+11*dt);
- velocityY-=19*dt;player.position.y+=velocityY*dt;
- const ground=heightAt(player.position.x,player.position.z);
- if(player.position.y<=ground){player.position.y=ground;velocityY=0;onGround=true;}
+ if(swimming){const swimSurface=lake.waterY-.25;velocityY+=(swimSurface-player.position.y)*5.5*dt;velocityY*=Math.pow(.12,dt);player.position.y+=velocityY*dt;onGround=false;}else{velocityY-=19*dt;player.position.y+=velocityY*dt;const ground=heightAt(player.position.x,player.position.z);if(player.position.y<=ground){player.position.y=ground;velocityY=0;onGround=true;}}
 }
 const cameraForward=new THREE.Vector3();
 function updateCamera(){
@@ -232,13 +228,13 @@ function tickSurvival(dt){
 function animate(){
  requestAnimationFrame(animate);
  const dt=Math.min(clock.getDelta(),.05);
- if(started&&!paused){elapsed+=dt;move(dt);updateCamera();tickSurvival(dt);dayNight(elapsed);updateChunks();}
+ if(started&&!paused){elapsed+=dt;move(dt);updateCamera();tickSurvival(dt);dayNight(elapsed);updateChunks();if(waterMat.userData.shader)waterMat.userData.shader.uniforms.uTime.value=elapsed;}
  renderer.render(scene,camera);
 }
 function start(){
  if(started)return;started=true;$('start').style.display='none';$('hud').style.display='block';$('loading').style.display='none';clock.start();updateCamera();
  if(innerWidth>700)renderer.domElement.requestPointerLock?.();
- toast('Explore as Greenlands.');
+ toast('Greenlands carregadas. Aproxime-se da água para nadar.');
 }
 function pause(){if(!started||paused)return;paused=true;$('pause').style.display='grid';if(document.pointerLockElement)document.exitPointerLock();}
 $('play').onclick=start;
